@@ -209,6 +209,18 @@
             >
             <div class="thread-hint">建议范围：1-50个线程</div>
           </div>
+          
+          <div class="proxy-input-group">
+            <label for="proxyInfo" class="proxy-label">代理信息</label>
+            <textarea 
+              id="proxyInfo"
+              v-model="proxyInfo" 
+              class="proxy-textarea"
+              placeholder="请输入代理信息，格式：http://user:pass@host:port 或 socks5://user:pass@host:port&#10; 会话id字符用#sessionId#代替"
+              rows="4"
+            ></textarea>
+            <div class="proxy-hint">支持 HTTP/HTTPS/SOCKS5 代理</div>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn-modal btn-cancel" @click="closeThreadModal">取消</button>
@@ -229,6 +241,7 @@ const executeEnabled = ref(true)
 const tableData = ref<DataRow[]>([])
 const showThreadModal = ref(false)
 const threadCount = ref(10)
+const proxyInfo = ref('')
 
 // 全局通知函数定义
 const notifly = (title: string, message: string, type: 'success' | 'warning' | 'info' | 'error') => {
@@ -336,10 +349,11 @@ const closeThreadModal = () => {
 const confirmExecute = () => {
   if (threadCount.value && threadCount.value > 0) {
     console.log(`开始执行，线程数量：${threadCount.value}`)
+    console.log(`代理信息：${proxyInfo.value || '无'}`)
     showThreadModal.value = false
     // 这里可以触发实际的执行逻辑
     if ((window as any).pywebview?.api?.start) {
-      (window as any).pywebview.api.start(threadCount.value);
+      (window as any).pywebview.api.start(threadCount.value, proxyInfo.value);
     }
   }
 }
@@ -861,7 +875,7 @@ onMounted(() => {
   border-radius: 1rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   width: 90%;
-  max-width: 400px;
+  max-width: 500px;
   overflow: hidden;
 }
 
@@ -931,6 +945,41 @@ onMounted(() => {
 }
 
 .thread-hint {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.proxy-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.proxy-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.proxy-textarea {
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  transition: border-color 0.2s;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.proxy-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.proxy-hint {
   font-size: 0.75rem;
   color: #718096;
 }
